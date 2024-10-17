@@ -8,5 +8,5 @@ bootstrap().catch((error: unknown) => {
 
 async function bootstrap(): Promise<void> {
     const nestFastifyApplication: NestFastifyApplication = await NestFactory.create(AppModule, new FastifyAdapter());
-    await nestFastifyApplication.listen({ port: 3000 });
+    await nestFastifyApplication.listen({ host: "0.0.0.0", port: 3000 });
 }

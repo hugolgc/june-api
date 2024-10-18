@@ -4,7 +4,6 @@ import { PageDTO } from "./page.dto";
 export class PageMapper {
     public static toDTO(page: Page): PageDTO {
         return {
-            id: page.id,
             css: page.css,
             html: page.html,
             title: page.title,

@@ -8,8 +8,8 @@ export class PageController {
     public constructor(private readonly pageService: PageService) {}
 
     @Get()
-    public getPages(): Observable<PageDTO[]> {
-        return this.pageService.getPages();
+    public getPageURLs(): Observable<string[]> {
+        return this.pageService.getPageURLs();
     }
 
     @Get("*")

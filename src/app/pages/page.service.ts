@@ -1,29 +1,36 @@
 import { Page } from "./page.entity";
 import { PageDTO } from "./page.dto";
+import { Repository } from "typeorm";
 import { PageMapper } from "./page.mapper";
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { map, Observable, of, switchMap, throwError } from "rxjs";
+import { InjectRepository } from "@nestjs/typeorm";
+import { catchError, from, map, Observable, throwError } from "rxjs";
+import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 
 @Injectable()
 export class PageService {
-    private readonly pages: Page[] = [
-        new Page("A", "Accueil", "", true, "<h1>Accueil (on)</h1>", "h1{padding:128px;color: red;}"),
-        new Page("B", "Équipes", "teams", false, "<h1>Équipes (off)</h1>", "h1{padding:128px;color: blue;}"),
-        new Page("C", "Contact", "contact", true, "<h1>Contact (on)</h1>", "h1{padding:128px;color: green;}"),
-    ];
+    public constructor(@InjectRepository(Page) private readonly pageRepository: Repository<Page>) {}
 
-    public getPages(): Observable<PageDTO[]> {
-        return of(this.pages).pipe(
-            map((pages) => pages.filter((page) => page.active)),
-            map((pages) => PageMapper.toDTOs(pages)),
+    public getPageURLs(): Observable<string[]> {
+        const request: Promise<Page[]> = this.pageRepository.find({ select: { url: true }, where: { active: true } });
+
+        return from(request).pipe(
+            map((pages) => pages.map((page) => page.url)),
+            catchError((error) => {
+                console.error(error);
+                return throwError(() => new InternalServerErrorException());
+            }),
         );
     }
 
     public getPage(url: string): Observable<PageDTO> {
-        return of(this.pages).pipe(
-            map((pages) => pages.filter((page) => page.active)),
-            map((pages) => pages.find((page) => page.url === url)),
-            switchMap((page) => (page ? of(PageMapper.toDTO(page)) : throwError(() => new NotFoundException()))),
+        const request: Promise<Page> = this.pageRepository.findOneOrFail({ where: { url, active: true } });
+
+        return from(request).pipe(
+            map((page) => PageMapper.toDTO(page)),
+            catchError((error) => {
+                console.error(error);
+                return throwError(() => new NotFoundException());
+            }),
         );
     }
 }

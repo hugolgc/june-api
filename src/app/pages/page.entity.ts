@@ -1,10 +1,31 @@
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+
+@Entity()
 export class Page {
-    public constructor(
-        public readonly id: string,
-        public readonly title: string,
-        public readonly url: string,
-        public readonly active: boolean,
-        public readonly html: string,
-        public readonly css: string,
-    ) {}
+    @PrimaryGeneratedColumn("uuid")
+    public id: string;
+
+    @Column("text")
+    public url: string;
+
+    @Column("text")
+    public css: string;
+
+    @Column("text")
+    public html: string;
+
+    @Column("text")
+    public title: string;
+
+    @Column("boolean")
+    public active: boolean;
+
+    public constructor(id: string, title: string, url: string, active: boolean, html: string, css: string) {
+        this.id = id;
+        this.url = url;
+        this.css = css;
+        this.html = html;
+        this.title = title;
+        this.active = active;
+    }
 }
